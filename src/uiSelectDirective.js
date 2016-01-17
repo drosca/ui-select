@@ -304,17 +304,18 @@ uis.directive('uiSelect',
 
             // Delay positioning the dropdown until all choices have been added so its height is correct.
             $timeout(function(){
+              var offset, offsetDropdown;
 
               if ($select.dropdownPosition === 'up'){
-                  //Go UP
-                  setDropdownPosUp(offset, offsetDropdown);
+                //Go UP
+                setDropdownPosUp(offset, offsetDropdown);
 
               }else{ //AUTO
 
                 element.removeClass(directionUpClassName);
 
-                var offset = uisOffset(element);
-                var offsetDropdown = uisOffset(dropdown);
+                offset = uisOffset(element);
+                offsetDropdown = uisOffset(dropdown);
 
                 //https://code.google.com/p/chromium/issues/detail?id=342307#c4
                 var scrollTop = $document[0].documentElement.scrollTop || $document[0].body.scrollTop; //To make it cross browser (blink, webkit, IE, Firefox).
