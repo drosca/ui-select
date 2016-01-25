@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.13.2 - 2016-01-17T12:46:44.802Z
+ * Version: 0.13.2 - 2016-01-25T00:22:24.235Z
  * License: MIT
  */
 
@@ -224,7 +224,7 @@ uis.directive('uiSelectChoices',
         scope.$watch('$select.search', function(newValue) {
           if(newValue && !$select.open && $select.multiple) $select.activate(false, true);
           $select.activeIndex = $select.tagging.isActivated ? -1 : 0;
-          $select.refresh(attrs.refresh);
+          $select.refresh(attrs.refresh, attrs.hasOwnProperty('skipEmpty'));
         });
 
         attrs.$observe('refreshDelay', function() {
@@ -284,7 +284,7 @@ uis.controller('uiSelectCtrl',
   if (ctrl.searchInput.length !== 1) {
     throw uiSelectMinErr('searchInput', "Expected 1 input.ui-select-search but got '{0}'.", ctrl.searchInput.length);
   }
-  
+
   ctrl.isEmpty = function() {
     return angular.isUndefined(ctrl.selected) || ctrl.selected === null || ctrl.selected === '';
   };
@@ -388,7 +388,7 @@ uis.controller('uiSelectCtrl',
     //If collection is an Object, convert it to Array
 
     var originalSource = ctrl.parserResult.source;
-    
+
     //When an object is used as source, we better create an array and use it as 'source'
     var createArrayFromObject = function(){
       var origSrc = originalSource($scope);
@@ -434,7 +434,7 @@ uis.controller('uiSelectCtrl',
         ctrl.items = [];
       } else {
         if (!angular.isArray(items)) {
-          throw uiSelectMinErr('items', "Expected an array but got '{0}'.", items);          
+          throw uiSelectMinErr('items', "Expected an array but got '{0}'.", items);
         } else {
           //Remove already selected items (ex: while searching)
           //TODO Should add a test
@@ -453,7 +453,14 @@ uis.controller('uiSelectCtrl',
    *
    * See Expose $select.search for external / remote filtering https://github.com/angular-ui/ui-select/pull/31
    */
-  ctrl.refresh = function(refreshAttr) {
+  ctrl.refresh = function(refreshAttr, skipEmpty) {
+    if(skipEmpty && ctrl.search === ''){
+      ctrl.skipOnEmpty = true;
+      return;
+    } else {
+      ctrl.skipOnEmpty = false;
+    }
+
     if (refreshAttr !== undefined) {
 
       // Debounce
