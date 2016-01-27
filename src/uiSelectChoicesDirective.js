@@ -54,7 +54,16 @@ uis.directive('uiSelectChoices',
         scope.$watch('$select.search', function(newValue) {
           if(newValue && !$select.open && $select.multiple) $select.activate(false, true);
           $select.activeIndex = $select.tagging.isActivated ? -1 : 0;
-          $select.refresh(attrs.refresh, attrs.hasOwnProperty('skipEmpty'));
+          if (!attrs.minimumInputLength || $select.search.length >= attrs.minimumInputLength) {
+            $select.refresh(attrs.refresh, attrs.hasOwnProperty('skipEmpty'));
+          } else {
+            $select.items = [];
+          }
+
+          if(attrs.hasOwnProperty('skipEmpty')){
+            $select.skipEmpty = true;
+          }
+
         });
 
         attrs.$observe('refreshDelay', function() {

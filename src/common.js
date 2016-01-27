@@ -1,4 +1,3 @@
-
 var KEY = {
     TAB: 9,
     ENTER: 13,
@@ -45,6 +44,13 @@ var KEY = {
     },
     isHorizontalMovement: function (k){
       return ~[KEY.LEFT,KEY.RIGHT,KEY.BACKSPACE,KEY.DELETE].indexOf(k);
+    },
+    toSeparator: function (k) {
+      var sep = {ENTER:"\n",TAB:"\t",SPACE:" "}[k];
+      if (sep) return sep;
+      // return undefined for special keys other than enter, tab or space.
+      // no way to use them to cut strings.
+      return KEY[k] ? undefined : k;
     }
   };
 
@@ -114,6 +120,18 @@ var uis = angular.module('ui.select', [])
 .directive('uisTranscludeAppend', function () {
   return {
     link: function (scope, element, attrs, ctrl, transclude) {
+        var ngModel = scope.$select.ngModel;
+        var $filter = scope.$select.$filter;
+
+        if (scope.$select.multiple && ngModel.$modelValue) {
+            for (var i = 0; i < ngModel.$modelValue.length; i++) {
+                ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i]);
+                ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i]);
+            }
+        }
+
+        scope.$item = $filter('capitalize')(scope.$item);
+
         transclude(scope, function (clone) {
           element.append(clone);
         });
