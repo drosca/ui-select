@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.13.2 - 2016-01-25T00:22:24.235Z
+ * Version: 0.13.2 - 2016-01-27T13:28:38.691Z
  * License: MIT
  */
 
@@ -124,6 +124,18 @@ var uis = angular.module('ui.select', [])
 .directive('uisTranscludeAppend', function () {
   return {
     link: function (scope, element, attrs, ctrl, transclude) {
+        var ngModel = scope.$select.ngModel;
+        var $filter = scope.$select.$filter;
+
+        if (scope.$select.multiple && ngModel.$modelValue) {
+            for (var i = 0; i < ngModel.$modelValue.length; i++) {
+                ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i]);
+                ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i]);
+            }
+        }
+
+        scope.$item = $filter('capitalize')(scope.$item);
+
         transclude(scope, function (clone) {
           element.append(clone);
         });
@@ -225,6 +237,10 @@ uis.directive('uiSelectChoices',
           if(newValue && !$select.open && $select.multiple) $select.activate(false, true);
           $select.activeIndex = $select.tagging.isActivated ? -1 : 0;
           $select.refresh(attrs.refresh, attrs.hasOwnProperty('skipEmpty'));
+
+          if(attrs.hasOwnProperty('skipEmpty')){
+            $select.skipEmpty = true;
+          }
         });
 
         attrs.$observe('refreshDelay', function() {

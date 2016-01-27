@@ -114,6 +114,18 @@ var uis = angular.module('ui.select', [])
 .directive('uisTranscludeAppend', function () {
   return {
     link: function (scope, element, attrs, ctrl, transclude) {
+        var ngModel = scope.$select.ngModel;
+        var $filter = scope.$select.$filter;
+
+        if (scope.$select.multiple && ngModel.$modelValue) {
+            for (var i = 0; i < ngModel.$modelValue.length; i++) {
+                ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i]);
+                ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i]);
+            }
+        }
+
+        scope.$item = $filter('capitalize')(scope.$item);
+
         transclude(scope, function (clone) {
           element.append(clone);
         });

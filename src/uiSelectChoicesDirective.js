@@ -55,6 +55,10 @@ uis.directive('uiSelectChoices',
           if(newValue && !$select.open && $select.multiple) $select.activate(false, true);
           $select.activeIndex = $select.tagging.isActivated ? -1 : 0;
           $select.refresh(attrs.refresh, attrs.hasOwnProperty('skipEmpty'));
+
+          if(attrs.hasOwnProperty('skipEmpty')){
+            $select.skipEmpty = true;
+          }
         });
 
         attrs.$observe('refreshDelay', function() {
