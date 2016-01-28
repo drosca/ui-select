@@ -125,13 +125,13 @@ var uis = angular.module('ui.select', [])
 
         if (scope.$select.multiple && ngModel.$modelValue) {
             for (var i = 0; i < ngModel.$modelValue.length; i++) {
-                ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i]);
-                ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i]);
+                ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i], true);
+                ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i], true);
             }
         }
 
         if (typeof scope.$item === 'string') {
-            scope.$item = $filter('capitalize')(scope.$item);
+            scope.$item = $filter('capitalize')(scope.$item, true);
         }
 
         transclude(scope, function (clone) {
