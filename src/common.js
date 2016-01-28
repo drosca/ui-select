@@ -130,7 +130,9 @@ var uis = angular.module('ui.select', [])
             }
         }
 
-        scope.$item = $filter('capitalize')(scope.$item);
+        if (typeof scope.$item === 'string') {
+            scope.$item = $filter('capitalize')(scope.$item);
+        }
 
         transclude(scope, function (clone) {
           element.append(clone);

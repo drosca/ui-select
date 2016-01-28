@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.14.0 - 2016-01-27T14:03:36.734Z
+ * Version: 0.14.0 - 2016-01-28T09:10:21.011Z
  * License: MIT
  */
 
@@ -140,7 +140,9 @@ var uis = angular.module('ui.select', [])
             }
         }
 
-        scope.$item = $filter('capitalize')(scope.$item);
+        if (typeof scope.$item === 'string') {
+            scope.$item = $filter('capitalize')(scope.$item);
+        }
 
         transclude(scope, function (clone) {
           element.append(clone);
