@@ -123,7 +123,7 @@ var uis = angular.module('ui.select', [])
         var ngModel = scope.$select.ngModel;
         var $filter = scope.$select.$filter;
 
-        if (scope.$select.multiple && ngModel.$modelValue) {
+        if (scope.$select.multiple && ngModel.$modelValue && typeof ngModel.$modelValue === 'string') {
             for (var i = 0; i < ngModel.$modelValue.length; i++) {
                 ngModel.$modelValue[i] = $filter('capitalize')(ngModel.$modelValue[i], true);
                 ngModel.$viewValue[i] = $filter('capitalize')(ngModel.$viewValue[i], true);
