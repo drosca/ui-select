@@ -57,7 +57,7 @@ uis.controller('uiSelectCtrl',
   }
 
   ctrl.isEmpty = function() {
-    return angular.isUndefined(ctrl.selected) || ctrl.selected === null || ctrl.selected === '';
+    return angular.isUndefined(ctrl.selected) || ctrl.selected === null || ctrl.selected === '' || (ctrl.multiple && ctrl.selected.length === 0);
   };
 
   // Most of the time the user does not want to empty the search input when in typeahead mode
@@ -66,7 +66,9 @@ uis.controller('uiSelectCtrl',
       ctrl.search = EMPTY_SEARCH;
       //reset activeIndex
       if (ctrl.selected && ctrl.items.length && !ctrl.multiple) {
-        ctrl.activeIndex = ctrl.items.indexOf(ctrl.selected);
+        ctrl.activeIndex = ctrl.items.findIndex(function(item){
+          return angular.equals(this, item);
+        }, ctrl.selected);
       }
     }
   }
@@ -266,7 +268,7 @@ uis.controller('uiSelectCtrl',
       return false;
     }
     var itemIndex = ctrl.items.indexOf(itemScope[ctrl.itemProperty]);
-    var isActive =  itemIndex === ctrl.activeIndex;
+    var isActive =  itemIndex == ctrl.activeIndex;
 
     if ( !isActive || ( itemIndex < 0 && ctrl.taggingLabel !== false ) ||( itemIndex < 0 && ctrl.taggingLabel === false) ) {
       return false;
@@ -444,14 +446,33 @@ uis.controller('uiSelectCtrl',
 
   function _handleDropDownSelection(key) {
     var processed = true;
+    var choicesEl, activeEl;
     switch (key) {
       case KEY.DOWN:
-        if (!ctrl.open && ctrl.multiple) ctrl.activate(false, true); //In case its the search input in 'multiple' mode
-        else if (ctrl.activeIndex < ctrl.items.length - 1) { ctrl.activeIndex++; }
+        if (!ctrl.open && ctrl.multiple) {
+          ctrl.activate(false, true); //In case its the search input in 'multiple' mode
+        } else if (ctrl.activeIndex < ctrl.items.length - 1) {
+          ctrl.activeIndex++;
+          choicesEl = $element.parent()[0].querySelector('.ui-select-choices');
+          activeEl = choicesEl.querySelector('.active a');
+
+          if(choicesEl.scrollTop + choicesEl.offsetHeight < activeEl.offsetTop + 2 * activeEl.offsetHeight + 5){
+            choicesEl.scrollTop = activeEl.offsetTop + 2 * activeEl.offsetHeight + 5 - choicesEl.offsetHeight;
+          }
+        }
         break;
       case KEY.UP:
-        if (!ctrl.open && ctrl.multiple) ctrl.activate(false, true); //In case its the search input in 'multiple' mode
-        else if (ctrl.activeIndex > 0 || (ctrl.search.length === 0 && ctrl.tagging.isActivated && ctrl.activeIndex > -1)) { ctrl.activeIndex--; }
+        if (!ctrl.open && ctrl.multiple) {
+          ctrl.activate(false, true); //In case its the search input in 'multiple' mode
+        } else if (ctrl.activeIndex > 0 || (ctrl.search.length === 0 && ctrl.tagging.isActivated && ctrl.activeIndex > -1)) {
+          ctrl.activeIndex--;
+          choicesEl = $element.parent()[0].querySelector('.ui-select-choices');
+          activeEl = choicesEl.querySelector('.active a');
+
+          if(choicesEl.scrollTop > activeEl.offsetTop - activeEl.offsetHeight - 5){
+            choicesEl.scrollTop = activeEl.offsetTop - activeEl.offsetHeight - 5;
+          }
+        }
         break;
       case KEY.TAB:
         if (!ctrl.multiple || ctrl.open) ctrl.select(ctrl.items[ctrl.activeIndex], true);
@@ -529,7 +550,7 @@ uis.controller('uiSelectCtrl',
     if (data && data.length > 0 && ctrl.taggingTokens.isActivated) {
       // split by first token only
       var separator = KEY.toSeparator(ctrl.taggingTokens.tokens[0]);
-      var items = data.split(separator); 
+      var items = data.split(separator);
       if (items && items.length > 0) {
         var oldsearch = ctrl.search;
         angular.forEach(items, function (item) {
@@ -568,10 +589,10 @@ uis.controller('uiSelectCtrl',
     if (posY > height) {
       container[0].scrollTop += posY - height;
     } else if (posY < highlighted.clientHeight) {
-      if (ctrl.isGrouped && ctrl.activeIndex === 0)
-        container[0].scrollTop = 0; //To make group header visible when going all the way up
-      else
-        container[0].scrollTop -= highlighted.clientHeight - posY;
+      //if (ctrl.isGrouped && ctrl.activeIndex === 0)
+        //container[0].scrollTop = 0; //To make group header visible when going all the way up
+      //else
+        //container[0].scrollTop -= highlighted.clientHeight - posY;
     }
   }
 
@@ -580,3 +601,27 @@ uis.controller('uiSelectCtrl',
   });
 
 }]);
+
+// Array findIndex polyfill (source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex#Polyfill)
+if (!Array.prototype.findIndex) {
+  Array.prototype.findIndex = function(predicate) {
+    if (this === null) {
+      throw new TypeError('Array.prototype.findIndex called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return i;
+      }
+    }
+    return -1;
+  };
+}
