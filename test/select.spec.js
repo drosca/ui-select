@@ -967,6 +967,7 @@ describe('ui-select tests', function() {
     expect(function() {
       compileTemplate(
         '<ui-select ng-model="selection.selected"> \
+          <ui-select-match></ui-select-match> \
           <ui-select-choices></ui-select-choices> \
         </ui-select>'
       );
@@ -2324,6 +2325,13 @@ describe('ui-select tests', function() {
 
     it('properly highlights numeric items', function() {
       var query = '15';
+      var item = 2015;
+
+      expect(highlight(item, query)).toBe('20<span class="ui-select-highlight">15</span>');
+    });
+
+    it('properly works with numeric queries', function() {
+      var query = 15;
       var item = 2015;
 
       expect(highlight(item, query)).toBe('20<span class="ui-select-highlight">15</span>');
