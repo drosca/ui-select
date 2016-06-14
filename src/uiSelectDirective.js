@@ -17,6 +17,14 @@ uis.directive('uiSelect',
     controllerAs: '$select',
     compile: function(tElement, tAttrs) {
 
+      // Allow setting ngClass on uiSelect
+      var match = /{(.*)}\s*{(.*)}/.exec(tAttrs.ngClass);
+      if(match) {
+        var combined = '{'+ match[1] +', '+ match[2] +'}';
+        tAttrs.ngClass = combined;
+        tElement.attr('ng-class', combined);
+      }
+
       //Multiple or Single depending if multiple attribute presence
       if (angular.isDefined(tAttrs.multiple))
         tElement.append('<ui-select-multiple/>').removeAttr('multiple');
@@ -83,6 +91,10 @@ uis.directive('uiSelect',
           // $eval() is needed otherwise we get a string instead of a boolean
           var resetSearchInput = scope.$eval(attrs.resetSearchInput);
           $select.resetSearchInput = resetSearchInput !== undefined ? resetSearchInput : true;
+        });
+
+        attrs.$observe('paste', function() {
+          $select.paste = scope.$eval(attrs.paste);
         });
 
         attrs.$observe('tagging', function() {
